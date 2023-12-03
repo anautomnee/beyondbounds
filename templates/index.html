@@ -1,0 +1,152 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Main
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row vh-100">
+        <!-- Left side -->
+        <div class="col-sm-3" id="mainSide">
+            <img src="/static/logo.png" class="img-fluid mt-4" alt="BeyondBounds">
+            <h1>BeyondBounds</h1>
+        <div class="time mt-4 ms-3 mb-5 position-absolute bottom-0">
+            <h2 class="lh-1 day"></h2>
+            <h3 class="lh-1 month"></h3>
+            <h4 class="lh-1 weekday"></h4>
+        </div>
+        <script>
+            const date = new Date();
+            document.querySelector('.day').innerHTML = date.toLocaleDateString('en-GB', { day: 'numeric' });
+            document.querySelector('.month').innerHTML = date.toLocaleDateString('en-GB', { month: 'long' }) + ',';
+            document.querySelector('.weekday').innerHTML = date.toLocaleDateString('en-GB', { weekday: 'long' });
+        </script>
+        </div>
+        <!-- Right part -->
+        <div class="col-sm-9" id="mainInfo">
+             <!-- Your account button -->
+            <div class="row position-absolute end-0 mt-4 me-4">
+                <div class="col-sm-3 me-0">
+                    <img src="/static/user.png" class="img-fluid text-wrap">
+                </div>
+                <div class="col-sm-9">
+                    <button type="button" class="btn">Your account</button>
+                </div>
+            </div>
+            <div class="container" style="margin-top: 11vh;">
+                <div class="row">
+                    <!-- Friend groups -->
+                    <div class="col-sm-8">
+                        <div class="groups ms-4 mt-4 text-center">
+                            <br>
+                            <h4 id="groups">Your friend groups</h4>
+                            <!-- Carousel -->
+                            <div class="container text-center my-3">
+                                <div class="row mx-auto my-auto justify-content-center">
+                                    <div id="recipeCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner" role="listbox">
+                                            <div class="carousel-item active">
+                                                <div class="col-md-3">
+                                                    <p>My group</p>
+                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                </div>
+                                            </div>
+                                            <div class="carousel-item">
+                                                <div class="col-md-3">
+                                                    <p>My group</p>
+                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                </div>
+                                            </div>
+                                            <div class="carousel-item">
+                                                <div class="col-md-3">
+                                                    <p>My group</p>
+                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                </div>
+                                            </div>
+                                            <div class="carousel-item">
+                                                <div class="col-md-3">
+                                                    <p>My group</p>
+                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                </div>
+                                            </div>
+                                            <div class="carousel-item">
+                                                <div class="col-md-3">
+                                                    <p>My group</p>
+                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                </div>
+                                            </div>
+                                            <div class="carousel-item">
+                                                <div class="col-md-3">
+                                                    <p>My group</p>
+                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#recipeCarousel" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#recipeCarousel" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                let items = document.querySelectorAll('.carousel .carousel-item')
+
+                                items.forEach((el) => {
+                                    const minPerSlide = 4
+                                    let next = el.nextElementSibling
+                                    for (let i=1; i<minPerSlide; i++) {
+                                        if (!next) {
+                                            // wrap carousel by using first child
+                                            next = items[0]
+                                        }
+                                        let cloneChild = next.cloneNode(true)
+                                        el.appendChild(cloneChild.children[0])
+                                        next = next.nextElementSibling
+                                    }
+                                })
+                            </script>
+                        <div>
+                            <button type="button" class="btn">Add a new group</button>
+                        </div>
+                        </div>
+                    </div>
+                    <!-- Sticky note -->
+                    <div class="col-sm-4">
+                        <img src="/static/sticky.png" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="container">
+                <div class="row">
+                    <!-- Upcomings meetings -->
+                    <div class="col-sm-8">
+                        <div class="groups2 ms-4 mt-4 text-center">
+                            <br>
+                            <h4 id="groups">Upcoming meetings</h4>
+                            <div class="white mx-auto mt-4">
+                                To Do
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quote -->
+                    <div class="col-sm-3 ms-4">
+                        <blockquote class="blockquote">
+                            <p style="margin-top: 90px;">“Even though we have so much to do and we live in different corners of the world, we can still stay connected”</p>
+                          </blockquote>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+{% endblock %}

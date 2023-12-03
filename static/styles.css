@@ -1,0 +1,100 @@
+h1 {
+    color:white;
+    font-family: "Caveat", sans-serif;
+    text-align: center;
+}
+.time {
+    color:white;
+    font-family: "Overpass", sans-serif;
+    text-align: left;
+}
+h2 {
+    font-size: 7vw;
+}
+h3 {
+    font-size: 4vw;
+}
+h4 {
+    font-size: 2.3vw;
+    color:white;
+}
+p {
+    color:#FD8F52;
+    font-family: "Overpass", sans-serif;
+    text-align: center;
+    font-size: 1.5vw;
+}
+#mainSide {
+    background-color: #FD8F52;
+}
+#mainInfo {
+    background-color: #FFBD71;
+}
+#userIcon {
+    width:50px;
+    height:30px;
+}
+.btn {
+    color:white;
+    font-family: "Overpass", sans-serif;
+    font-size: 18px;
+}
+.groups {
+    height: fit-content;
+    border-radius: 25px;
+    background-color: #FFDCA2;
+}
+.groups2 {
+    height: 22vw;
+    border-radius: 25px;
+    background-color: #FFDCA2;
+}
+.white {
+    height: 60%;
+    width: 90%;
+    border-radius: 25px;
+    background-color: white;
+}
+#groups {
+    color:#FE676E;
+}
+
+
+@media (max-width: 767px) {
+    .carousel-inner .carousel-item > div {
+        display: none;
+    }
+    .carousel-inner .carousel-item > div:first-child {
+        display: block;
+    }
+}
+
+.carousel-inner .carousel-item.active,
+.carousel-inner .carousel-item-next,
+.carousel-inner .carousel-item-prev {
+    display: flex;
+}
+
+/* medium and up screens */
+@media (min-width: 768px) {
+    
+    .carousel-inner .carousel-item-end.active,
+    .carousel-inner .carousel-item-next {
+      transform: translateX(25%);
+    }
+    
+    .carousel-inner .carousel-item-start.active, 
+    .carousel-inner .carousel-item-prev {
+      transform: translateX(-25%);
+    }
+}
+
+.carousel-inner .carousel-item-end,
+.carousel-inner .carousel-item-start { 
+  transform: translateX(0);
+}
+
+
+.circle {
+    width: 16vh;
+}
