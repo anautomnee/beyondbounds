@@ -31,10 +31,55 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-@app.route("/")
+# Groups table
+try:
+    con = sqlite3.connect("bb.db")
+    db = con.cursor()
+    db.execute(
+        "CREATE TABLE groups ( group_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, group_name TEXT NOT NULL)"
+    )
+except sqlite3.OperationalError:
+    pass
+
+
+@app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    return render_template("index.html")
+    if request.method == "POST":
+        group_name = request.form.get("group_name")
+        con = sqlite3.connect("bb.db")
+        db = con.cursor()
+        db.execute(
+            "INSERT INTO groups (user_id, group_name) VALUES (?, ?)", [session["user_id"], group_name]
+        )
+        con.commit()
+        res = db.execute(
+            "SELECT group_name FROM groups WHERE user_id = ?", [session["user_id"]]
+        )
+        groups = res.fetchall()
+
+        # Conversion of list of tuple to list of strings
+        groups = [i for (i,) in groups]
+
+        #Count the groups
+        group_number = len(groups)
+
+        return render_template("index.html", groups=groups, group_number=group_number)
+
+    else:
+        con = sqlite3.connect("bb.db")
+        db = con.cursor()
+        res = db.execute(
+            "SELECT group_name FROM groups WHERE user_id = ?", [session["user_id"]]
+        )
+        groups = res.fetchall()
+        # # Conversion of list of tuple to list of strings
+        groups = [i for (i,) in groups]
+
+        #Count the groups
+        group_number = len(groups)
+        
+        return render_template("index.html", groups=groups, group_number=group_number)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -131,8 +176,6 @@ def register():
         hash = generate_password_hash(
                 request.form.get("password"), method="scrypt", salt_length=16
         )
-        
-
 
         db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", [username, hash])
         con.commit()

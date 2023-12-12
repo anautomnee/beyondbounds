@@ -1,3 +1,6 @@
+body {
+    background-color: #FFBD71;
+}
 h1 {
     color:white;
     font-family: "Caveat", sans-serif;
@@ -24,6 +27,12 @@ p {
     text-align: center;
     font-size: 1.5vw;
 }
+#registerFacilitator {
+    font-size: 1.2vw;
+    color:white;
+    text-align: left;
+}
+
 #mainSide {
     background-color: #FD8F52;
 }
@@ -59,8 +68,11 @@ p {
     color:#FE676E;
 }
 
+.circle {
+    width: 16vh;
+}
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .carousel-inner .carousel-item > div {
         display: none;
     }
@@ -75,7 +87,7 @@ p {
     display: flex;
 }
 
-/* medium and up screens */
+/* display 3 */
 @media (min-width: 768px) {
     
     .carousel-inner .carousel-item-end.active,
@@ -92,9 +104,4 @@ p {
 .carousel-inner .carousel-item-end,
 .carousel-inner .carousel-item-start { 
   transform: translateX(0);
-}
-
-
-.circle {
-    width: 16vh;
 }

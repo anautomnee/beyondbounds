@@ -44,44 +44,29 @@
                             <!-- Carousel -->
                             <div class="container text-center my-3">
                                 <div class="row mx-auto my-auto justify-content-center">
-                                    <div id="recipeCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                                    <div id="recipeCarousel" class="carousel carousel-dark slide">
                                         <div class="carousel-inner" role="listbox">
-                                            <div class="carousel-item active">
-                                                <div class="col-md-3">
-                                                    <p>My group</p>
-                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                            {% for first in range(0, group_number) %}
+                                                {% if first==0 %}
+                                                <div class="carousel-item active">
+                                                    {% for group in groups[:4] %}
+                                                    <div class="col-md-3">
+                                                        <p>{{ group }}</p>
+                                                        <img src="/static/circle.png" class="img-fluid circle">
+                                                    </div>
+                                                    {% endfor %}
                                                 </div>
-                                            </div>
-                                            <div class="carousel-item">
-                                                <div class="col-md-3">
-                                                    <p>My group</p>
-                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                {% else %}
+                                                <div class="carousel-item">
+                                                    {% for group in groups[first:first+4] %}
+                                                    <div class="col-md-3">
+                                                        <p>{{ group }}</p>
+                                                        <img src="/static/circle.png" class="img-fluid circle">
+                                                    </div>
+                                                    {% endfor %}
                                                 </div>
-                                            </div>
-                                            <div class="carousel-item">
-                                                <div class="col-md-3">
-                                                    <p>My group</p>
-                                                    <img src="/static/circle.png" class="img-fluid circle">
-                                                </div>
-                                            </div>
-                                            <div class="carousel-item">
-                                                <div class="col-md-3">
-                                                    <p>My group</p>
-                                                    <img src="/static/circle.png" class="img-fluid circle">
-                                                </div>
-                                            </div>
-                                            <div class="carousel-item">
-                                                <div class="col-md-3">
-                                                    <p>My group</p>
-                                                    <img src="/static/circle.png" class="img-fluid circle">
-                                                </div>
-                                            </div>
-                                            <div class="carousel-item">
-                                                <div class="col-md-3">
-                                                    <p>My group</p>
-                                                    <img src="/static/circle.png" class="img-fluid circle">
-                                                </div>
-                                            </div>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
 
                                         <button class="carousel-control-prev" type="button" data-bs-target="#recipeCarousel" data-bs-slide="prev">
@@ -95,26 +80,37 @@
                                     </div>
                                 </div>
                             </div>
-                            <script>
+                            <!-- <script>
+                                
                                 let items = document.querySelectorAll('.carousel .carousel-item')
+                                const maxPerSlide = 4
+                                
+                                if (items.length < maxPerSlide) {
+
+                                }
 
                                 items.forEach((el) => {
-                                    const minPerSlide = 4
                                     let next = el.nextElementSibling
-                                    for (let i=1; i<minPerSlide; i++) {
+                                    for (let i=1; i<maxPerSlide; i++) {
                                         if (!next) {
-                                            // wrap carousel by using first child
-                                            next = items[0]
+                                            if (items.length >= maxPerSlide){
+                                                // wrap carousel by using first child
+                                                next = items[0]
+                                            }
+                                            else {
+                                                next = null
+                                            }
                                         }
                                         let cloneChild = next.cloneNode(true)
                                         el.appendChild(cloneChild.children[0])
                                         next = next.nextElementSibling
                                     }
                                 })
-                            </script>
-                        <div>
-                            <button type="button" class="btn">Add a new group</button>
-                        </div>
+                            </script> -->
+                            <form action="/" method="post">
+                                <input autocomplete="off" autofocus class="form-control" name="group_name" placeholder="Group name" type="text">
+                                <button type="submit" class="btn">Add a new group</button>
+                            </form>
                         </div>
                     </div>
                     <!-- Sticky note -->
@@ -133,7 +129,18 @@
                             <br>
                             <h4 id="groups">Upcoming meetings</h4>
                             <div class="white mx-auto mt-4">
-                                To Do
+                                <div class="row">
+                                    <div class="col mt-4">
+                                        <p style="color: #FE676E; font-size: 2vw;">15th January</p>
+                                        <p>14:00 Girlz</p>
+                                        <p> 16:00 Job buddies</p>
+                                    </div>
+                                    <div class="col mt-4">
+                                        <p style="color: #FE676E; font-size: 2vw;">23th January</p>
+                                        <p>09:00 Group2</p>
+                                        <p>17:00 Group1</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
