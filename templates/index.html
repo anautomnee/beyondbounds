@@ -11,106 +11,164 @@
         <div class="col-sm-3" id="mainSide">
             <img src="/static/logo.png" class="img-fluid mt-4" alt="BeyondBounds">
             <h1>BeyondBounds</h1>
-        <div class="time mt-4 ms-3 mb-5 position-absolute bottom-0">
-            <h2 class="lh-1 day"></h2>
-            <h3 class="lh-1 month"></h3>
-            <h4 class="lh-1 weekday"></h4>
-        </div>
-        <script>
-            const date = new Date();
-            document.querySelector('.day').innerHTML = date.toLocaleDateString('en-GB', { day: 'numeric' });
-            document.querySelector('.month').innerHTML = date.toLocaleDateString('en-GB', { month: 'long' }) + ',';
-            document.querySelector('.weekday').innerHTML = date.toLocaleDateString('en-GB', { weekday: 'long' });
-        </script>
+            <div class="time mt-4 ms-3 mb-5 position-absolute bottom-0">
+                <h2 class="lh-1 day"></h2>
+                <h3 class="lh-1 month"></h3>
+                <h4 class="lh-1 weekday"></h4>
+            </div>
+            <script>
+                const date = new Date();
+                document.querySelector('.day').innerHTML = date.toLocaleDateString('en-GB', { day: 'numeric' });
+                document.querySelector('.month').innerHTML = date.toLocaleDateString('en-GB', { month: 'long' }) + ',';
+                document.querySelector('.weekday').innerHTML = date.toLocaleDateString('en-GB', { weekday: 'long' });
+            </script>
         </div>
         <!-- Right part -->
         <div class="col-sm-9" id="mainInfo">
-             <!-- Your account button -->
-            <div class="row position-absolute end-0 mt-4 me-4">
-                <div class="col-sm-3 me-0">
-                    <img src="/static/user.png" class="img-fluid text-wrap">
+             <!-- Nav -->
+             <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container">
+                  <div class="collapse navbar-collapse ms-3 mt-2" id="navbarNav">
+                    <ul class="navbar-nav">
+                      <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                      </li>
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Groups
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for group in groups %}
+                            <li><a class="dropdown-item" href="/group/{{ group["id"] }}">{{ group["name"] }}</a></li>
+                            {% endfor %}                     
+                        </ul>
+                      </li>
+                    </ul>
                 </div>
-                <div class="col-sm-9">
-                    <button type="button" class="btn">Your account</button>
+                  <div class="navbar-collapse collapse me-4" style="display: flex; justify-content: flex-end">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    </ul>
                 </div>
-            </div>
-            <div class="container" style="margin-top: 11vh;">
+                </div>
+              </nav>
+            <div class="container">
                 <div class="row">
                     <!-- Friend groups -->
                     <div class="col-sm-8">
-                        <div class="groups ms-4 mt-4 text-center">
+                        <div class="groups ms-4 mt-4 text-center" style="position: relative;">
                             <br>
                             <h4 id="groups">Your friend groups</h4>
-                            <!-- Carousel -->
-                            <div class="container text-center my-3">
-                                <div class="row mx-auto my-auto justify-content-center">
-                                    <div id="recipeCarousel" class="carousel carousel-dark slide">
-                                        <div class="carousel-inner" role="listbox">
-                                            {% for first in range(0, group_number) %}
-                                                {% if first==0 %}
-                                                <div class="carousel-item active">
-                                                    {% for group in groups[:4] %}
-                                                    <div class="col-md-3">
-                                                        <p>{{ group }}</p>
-                                                        <img src="/static/circle.png" class="img-fluid circle">
+                            <div class="container">
+                                <div class="row">
+                                    {% if 4 >= group_number %}
+                                        {% for group in groups %}
+                                            <div class="col">
+                                                <p>{{ group["name"] }}</p>
+                                                <a href="/group/{{ group["id"] }}">
+                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                </a>
+                                                
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- Carousel -->
+                                        <div class="container text-center my-3">
+                                            <div class="row mx-auto my-auto justify-content-center">
+                                                <div id="recipeCarousel" class="carousel carousel-dark slide">
+                                                    <div class="carousel-inner" role="listbox">
+                                                        <div class="carousel-item active">
+                                                            <div class="col-md-3">
+                                                                <p>{{groups[0]["name"]}}</p>
+                                                                <a href="/group/{{ groups[0]["id"] }}">
+                                                                    <img src="/static/circle.png" class="img-fluid circle">
+                                                                </a>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                        {% for index in range(1, group_number) %}
+                                                            <div class="carousel-item">
+                                                                <div class="col-md-3">
+                                                                    <p >{{ groups[index]["name"] }}</p>
+                                                                    <a href="/group/{{ groups[index]["id"] }}">
+                                                                        <img src="/static/circle.png" class="img-fluid circle">
+                                                                    </a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
                                                     </div>
-                                                    {% endfor %}
+
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#recipeCarousel" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Previous</span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#recipeCarousel" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Next</span>
+                                                    </button>
                                                 </div>
-                                                {% else %}
-                                                <div class="carousel-item">
-                                                    {% for group in groups[first:first+4] %}
-                                                    <div class="col-md-3">
-                                                        <p>{{ group }}</p>
-                                                        <img src="/static/circle.png" class="img-fluid circle">
-                                                    </div>
-                                                    {% endfor %}
-                                                </div>
-                                                {% endif %}
-                                            {% endfor %}
+                                            </div>
                                         </div>
 
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#recipeCarousel" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#recipeCarousel" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
+                                        <script>
+                                            let items = document.querySelectorAll('.carousel .carousel-item')
+            
+                                            items.forEach((el) => {
+                                                const minPerSlide = 4
+                                                let next = el.nextElementSibling
+                                                for (let i=1; i<minPerSlide; i++) {
+                                                    if (!next) {
+                                                        // wrap carousel by using first child
+                                                        next = items[0]
+                                                    }
+                                                    let cloneChild = next.cloneNode(true)
+                                                    el.appendChild(cloneChild.children[0])
+                                                    next = next.nextElementSibling
+                                                }
+                                            })
+                                        </script>
+
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- New group -->
+                            <div class="col-sm-8" style="position: absolute; bottom: 0px; margin-left: 7vw;">
+                                <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#groupsModal">Add a new group</button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="groupsModal" tabindex="-1" role="dialog" aria-labelledby="groupsModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h5 class="modal-title" id="groupsModalLabel">Add a new group</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="/" method="post">
+                                                    <div class="form-group text-start">
+                                                        <label for="group-name" class="col-form-label">Group name:</label>
+                                                        <input autocomplete="off" type="text" class="form-control" id="group-name" name="group_name">
+                                                        <div class="row mt-4 justify-content-end">
+                                                            <div class="col-2">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <button type="submit" class="btn btn-primary" style="background-color: #FD8F52; border-color: #FD8F52;">Add</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- <script>
-                                
-                                let items = document.querySelectorAll('.carousel .carousel-item')
-                                const maxPerSlide = 4
-                                
-                                if (items.length < maxPerSlide) {
-
-                                }
-
-                                items.forEach((el) => {
-                                    let next = el.nextElementSibling
-                                    for (let i=1; i<maxPerSlide; i++) {
-                                        if (!next) {
-                                            if (items.length >= maxPerSlide){
-                                                // wrap carousel by using first child
-                                                next = items[0]
-                                            }
-                                            else {
-                                                next = null
-                                            }
-                                        }
-                                        let cloneChild = next.cloneNode(true)
-                                        el.appendChild(cloneChild.children[0])
-                                        next = next.nextElementSibling
-                                    }
-                                })
-                            </script> -->
-                            <form action="/" method="post">
-                                <input autocomplete="off" autofocus class="form-control" name="group_name" placeholder="Group name" type="text">
-                                <button type="submit" class="btn">Add a new group</button>
-                            </form>
                         </div>
                     </div>
                     <!-- Sticky note -->
