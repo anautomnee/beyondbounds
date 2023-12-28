@@ -58,7 +58,7 @@
                 <div class="row">
                     <!-- Friend groups -->
                     <div class="col-sm-8">
-                        <div class="groups ms-4 mt-4 text-center" style="position: relative;">
+                        <div class="groups ms-4 mt-2 text-center" style="position: relative;">
                             <br>
                             <h4 id="groups">Your friend groups</h4>
                             <div class="container">
@@ -187,21 +187,35 @@
                             <br>
                             <h4 id="groups">Upcoming meetings</h4>
                             <div class="white mx-auto mt-4">
-                                <div class="row">
-                                    <div class="col mt-4">
-                                        <p style="color: #FE676E; font-size: 2vw;">15th January</p>
-                                        <p>14:00 Girlz</p>
-                                        <p> 16:00 Job buddies</p>
+                                <br>
+                                {% for meeting in meetings %}
+                                    <div class="row ms-4">
+                                        <div class="col-sm-auto">
+                                            <p style="text-align: right;">{{ meeting["name"] }} - </p>
+                                        </div>
+                                        <div class="col-sm-6" >
+                                            <p style="text-align: left;" class="meetingtime">{{ meeting["start"] }}</p>
+                                        </div>
                                     </div>
-                                    <div class="col mt-4">
-                                        <p style="color: #FE676E; font-size: 2vw;">23th January</p>
-                                        <p>09:00 Group2</p>
-                                        <p>17:00 Group1</p>
-                                    </div>
-                                </div>
+                                    
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
+
+                    <script>
+                        for (const p of document.querySelectorAll('.meetingtime')) {
+                            const date = new Date(p.innerHTML);
+                            p.innerHTML = date.toLocaleDateString('en-GB', { 
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric'
+                            });
+                        }
+                    </script>
+
                     <!-- Quote -->
                     <div class="col-sm-3 ms-4">
                         <blockquote class="blockquote">

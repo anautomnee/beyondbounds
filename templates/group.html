@@ -106,17 +106,72 @@
                 <br>
                 <p class="text-start ms-4">Meetings proposals</p>
                 <div class="meetings ms-4">
-                    <div class="row ms-4">
-                        <div class="col-sm-6">
-                            <p style="text-align: start; color: white;">24th December 13:00</p>
+                    {% if meetings_number > 0 %}
+                        {% for meeting in meetings %}
+                            <div class="row ms-4">
+                                <div class="col-sm-6 mt-2">
+                                    <p class="meetingtime" style="text-align: start; color: white;" data-bs-toggle="modal" role="button" data-bs-target="#meetinginfoModal-{{ meeting["id"] }}">{{meeting["start"]}}</p>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="meetinginfoModal-{{ meeting["id"] }}" tabindex="-1" aria-labelledby="meetinginfoModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <p class="modal-title fs-5" id="meetinginfoModalLabel">Meeting's info</p>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body" id="meetinginfo">
+                                            <ur>
+                                                {% for member in meeting["members"] %}
+                                                <li>{{ member["username"] }}: {{ member["status"] }}</li>
+                                                {% endfor %}
+                                            </ur>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+
+                                {% if meeting["status"] == 'none' %}
+                                <div class="col-sm-2">
+                                    <form action="/api/updatemeeting" method="post">
+                                        <button type="submit" id="status" name="status" value="1" class="btn btn-sm">accept</button>
+                                        <input type="hidden" id="meeting_id" name="meeting_id" value="{{ meeting["id"] }}">
+                                        <input type="hidden" id="group_id" name="group_id" value="{{ group_id }}">
+                                    </form>
+                                </div>
+                                <div class="col-sm-2">
+                                    <form action="/api/updatemeeting" method="post">
+                                         <button type="submit" id="status" name="status" value="2" class="btn btn-sm">decline</button>
+                                         <input type="hidden" id="meeting_id" name="meeting_id" value="{{ meeting["id"] }}">
+                                         <input type="hidden" id="group_id" name="group_id" value="{{ group_id }}">
+                                    </form>
+                                </div>
+                                {% else %}
+                                    <div class="col-sm-2 mt-2">
+                                        <p style="text-align: start; color: white;">{{ meeting["status"] }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% elif meetings_number == 0 %}
+                        <div class="col-sm-6 ms-4">
+                            <p style="text-align: start; color: white;">No meetings yet</p>
                         </div>
-                        <div class="col-sm-2">
-                            <p style="text-align: start; color: white; font-size: 1.3vw;">accept</p>
-                        </div>
-                        <div class="col-sm-2">
-                            <p style="text-align: start; color: white; font-size: 1.3vw;">decline</p>
-                        </div>
-                    </div>
+                    {% endif %}
+                    <script>
+                        for (const p of document.querySelectorAll('.meetingtime')) {
+                            const date = new Date(p.innerHTML);
+                            p.innerHTML = date.toLocaleDateString('en-GB', { 
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric'
+                            });
+                        }
+                    </script>
                 </div>
                 <!-- Button trigger modal -->
                 <p class="mt-2" style="color: #FE676E;" data-bs-toggle="modal" role="button" data-bs-target="#meetingsModal" >+ add a new meeting</p>
@@ -126,25 +181,36 @@
                     <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                        <p class="modal-title fs-5" id="meetingsModalLabel">Add a new member</p>
+                        <p class="modal-title fs-5" id="meetingsModalLabel">Add a new meeting</p>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form action="/api/addmeeting" method="post">
+                            <form action="/api/addmeeting" method="post" onsubmit="replaceMeetingDate();">
                                 <div class="form-group text-start">
                                     <label for="group-name" class="col-form-label">New meeting proposal:</label>
                                     <input autocomplete="off" type="datetime-local" class="form-control" id="new-meeting" name="new_meeting">
                                     <input type="hidden" id="group_id" name="group_id" value="{{ group_id }}">
+                                    <input type="hidden" id="meeting-time" name="meeting_time" value="">
                                     <div class="row mt-4 justify-content-end">
                                         <div class="col-2">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         </div>
                                         <div class="col-2">
-                                            <button type="submit" class="btn btn-primary" style="background-color: #FD8F52; border-color: #FD8F52;">Add</button>
+                                            <button disabled type="submit" id="add-meeting" class="btn btn-primary" style="background-color: #FD8F52; border-color: #FD8F52;">Add</button>
                                         </div>
                                     </div>
                                 </div>
                             </form>
+                            <script>
+                                document.querySelector('#new-meeting').addEventListener("input", () => {
+                                    if(!document.querySelector('#new-meeting').value){
+                                        document.querySelector('#add-meeting').disabled = true;
+                                    }
+                                    else {
+                                        document.querySelector('#add-meeting').disabled = false;
+                                    }
+                                })
+                            </script>
                         </div>
                     </div>
                     </div>

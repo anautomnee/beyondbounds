@@ -1,3 +1,7 @@
+body {
+    background-color: #FFBD71;
+}
+
 h1 {
     color:white;
     font-family: "Caveat", sans-serif;
@@ -22,7 +26,7 @@ p {
     color:#FD8F52;
     font-family: "Overpass", sans-serif;
     text-align: center;
-    font-size: 1.5vw;
+    font-size: 1.3vw;
 }
 
 .nav-link {
@@ -60,12 +64,12 @@ p {
     background-color: #FFDCA2;
 }
 .groups2 {
-    height: 22vw;
+    height: 23.5vw;
     border-radius: 25px;
     background-color: #FFDCA2;
 }
 .white {
-    height: 60%;
+    height: 65%;
     width: 90%;
     border-radius: 25px;
     background-color: white;
@@ -101,6 +105,10 @@ p {
     font-family: "Overpass", sans-serif;
     padding-top: 2vh;
     padding-bottom: 2vh;
+}
+
+#meetinginfo {
+    color: #FE676E;
 }
 
 .circle {

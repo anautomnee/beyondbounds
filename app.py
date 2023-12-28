@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import sqlite3
@@ -79,6 +80,16 @@ try:
 except sqlite3.OperationalError:
     pass
 
+# Acceptions table
+try:
+    con = sqlite3.connect("bb.db")
+    db = con.cursor()
+    db.execute(
+        "CREATE TABLE acceptions ( acception_id INTEGER PRIMARY KEY AUTOINCREMENT, meeting_id INTEGER NOT NULL, user_id INTEGER NOT NULL, status INTEGER NOT NULL)"
+    )
+except sqlite3.OperationalError:
+    pass
+
 def get_groups(user_id):
 
     con = sqlite3.connect("bb.db")
@@ -92,6 +103,17 @@ def get_groups(user_id):
     # Conversion of list of tuple to list of strings
     groups = [{"name": name, "id": id} for (name,id) in groups]
     return groups
+
+def statusToAdj(status):
+    if status == None:
+        return 'none'
+    if status == 0 or status == (0, ):
+        return 'none'
+    if status == 1 or status == (1, ):
+        return 'accepted'
+    if status == 2 or status == (2, ):
+        return 'declined'
+    return 'N/A'
 
 @app.route("/", methods=["GET", "POST"])
 @login_required
@@ -119,15 +141,34 @@ def index():
         #Count the groups
         group_number = len(groups)
 
-        return render_template("index.html", groups=groups, group_number=group_number)
+        #Get the meetings for the person
+        con = sqlite3.connect("bb.db")
+        db = con.cursor()
+        db.execute(
+            "SELECT meetings.start, groups.group_name FROM meetings JOIN acceptions ON meetings.meeting_id = acceptions.meeting_id JOIN groups ON meetings.group_id = groups.group_id WHERE acceptions.status = 1 AND acceptions.user_id = ? ORDER BY meetings.start DESC LIMIT 4", [session["user_id"]]
+        )
+        meetings = db.fetchall()
+
+        meetings = [{"start": start, "name": name} for (start,name) in db.fetchall()]
+
+        return render_template("index.html", groups=groups, group_number=group_number, meetings=meetings)
 
     else:
         groups = get_groups(session["user_id"])
 
         #Count the groups
         group_number = len(groups)
+
+        #Get the meetings for the person
+        con = sqlite3.connect("bb.db")
+        db = con.cursor()
+        db.execute(
+            "SELECT meetings.start, groups.group_name FROM meetings JOIN acceptions ON meetings.meeting_id = acceptions.meeting_id JOIN groups ON meetings.group_id = groups.group_id WHERE acceptions.status = 1 AND acceptions.user_id = ? ORDER BY meetings.start DESC LIMIT 4", [session["user_id"]]
+        )
+
+        meetings = [{"start": start, "name": name} for (start,name) in db.fetchall()]
         
-        return render_template("index.html", groups=groups, group_number=group_number)
+        return render_template("index.html", groups=groups, group_number=group_number, meetings=meetings)
 
 
 @app.route("/group/<group_id>")
@@ -163,7 +204,27 @@ def group(group_id):
         # Get all groups for user
         groups = get_groups(session["user_id"])
 
-        return render_template("group.html", groups=groups, group_id=group_id, group_name=group_name, members=members)
+        #Get meetings for this group
+        db.execute(
+            "SELECT meetings.start, meetings.meeting_id FROM meetings WHERE meetings.group_id = ?", [group_id]
+        )
+        # Conversion of list of tuple to list of strings
+        meetings = [{"start": start, "id": id} for (start,id) in db.fetchall()]
+        for meeting in meetings:
+            db.execute(
+                "SELECT status FROM acceptions WHERE meeting_id = ? AND user_id = ?", [meeting["id"], session["user_id"]]
+            )
+            status = db.fetchone()
+
+            meeting["status"] = statusToAdj(status)
+            db.execute(
+                "SELECT u.username, a.status FROM group_to_user as gu JOIN users as u ON gu.user_id=u.id LEFT JOIN acceptions as a ON a.user_id = gu.user_id WHERE gu.group_id = ? and gu.user_id != ? AND ( a.meeting_id = ? OR a.meeting_id is null )",
+                [group_id, session["user_id"], meeting["id"]]
+            )
+            meeting["members"] = [{"username": username, "status": statusToAdj(status) } for (username, status) in db.fetchall()]
+        meetings_number = len(meetings)
+
+        return render_template("group.html", groups=groups, group_id=group_id, group_name=group_name, members=members, meetings=meetings, meetings_number=meetings_number)
     else:
         return apology("no access to this group", 400)
 
@@ -177,38 +238,72 @@ def addmember():
     db.execute(
         "SELECT id FROM users WHERE username = ?", [member_username]
     )
-    users = db.fetchall()
-    member_id, = users[0] if len(users) > 0 else None
-    if member_id != None:
+    res = db.fetchone()
+    if res is not None:
+        member_id, = res
         group_id = request.form.get("group_id")
-        # Get user id from username "SELECT id FROM users WHERE username = ?", member_username
+        # Get user id from username 
         db.execute(
             "INSERT INTO group_to_user(group_id, user_id) VALUES(?,?);", [group_id, member_id]
         )
         con.commit()
         return redirect(f'/group/{group_id}')
     else:
-        abort(400)
+        return apology("user doesn't exist", 400)
 
 @app.route("/api/addmeeting", methods=["POST"])
 def addmeeting():
     group_id = request.form.get("group_id")
-    new_meeting = request.form.get("new_meeting")
+    new_meeting = request.form.get("meeting_time")
     # Check if this meeting exists
     con = sqlite3.connect("bb.db")
     db = con.cursor()
     db.execute(
-        "SELECT COUNT(*) FROM meetings WHERE start = ? AND group_id = >", [new_meeting, group_id]
+        "SELECT COUNT(*) FROM meetings WHERE start = ? AND group_id = ?", [new_meeting, group_id]
     )
     meetings_count = db.fetchone()
     if meetings_count == (0,):
         db.execute(
             "INSERT INTO meetings(group_id, start) VALUES(?,?)", [group_id, new_meeting]
         )
+        con.commit()
+        db.execute(
+            "SELECT meeting_id FROM meetings WHERE group_id = ? AND start = ?", [group_id, new_meeting]
+        )
+        meeting_id, = db.fetchone()
+
+        db.execute(
+            "INSERT INTO acceptions(meeting_id, user_id, status) VALUES(?,?,0)", [meeting_id, session["user_id"]]
+        )
+        con.commit()
+
+        return redirect(f'/group/{group_id}')
     else:
         abort(400)
 
-
+@app.route("/api/updatemeeting", methods=["POST"])
+def acceptmeeting():
+    con = sqlite3.connect("bb.db")
+    db = con.cursor()
+    status = request.form.get("status")
+    meeting_id = request.form.get("meeting_id")
+    group_id = request.form.get("group_id")
+    try:
+        db.execute(
+            "SELECT COUNT(*) FROM acceptions WHERE meeting_id = ? AND user_id = ?", [meeting_id, session["user_id"]]
+        )
+        if (1,) == db.fetchone():
+            db.execute(
+                "UPDATE acceptions SET status = ? WHERE meeting_id = ? AND user_id = ?", [status, meeting_id, session["user_id"]]
+            )
+        else:
+            db.execute(
+                "INSERT INTO acceptions(meeting_id, user_id, status) VALUES(?,?,?)", [meeting_id, session["user_id"], status]
+            )
+        con.commit()
+        return redirect(f'/group/{group_id}')
+    except Exception as e:
+        abort(400)
 
 @app.route("/api/newevent", methods=["POST"])
 def newevent():
@@ -222,11 +317,9 @@ def newevent():
             "INSERT INTO events (start, end, user_id, group_id) VALUES(?,?,?,?)", [start, end, session["user_id"], group_id]
         )
         con.commit()
-        return db.lastrowid, 201
+        return str(db.lastrowid), 201
     except Exception as e:
         abort(400)
-
-    return '', 201
 
 @app.route("/api/getevents", methods=["GET"])
 @login_required
@@ -263,41 +356,6 @@ def getevent():
     return events
 
 
-@app.route("/api/hidemyevents", methods=["GET"])
-@login_required
-def hidemyevents():
-    user_id = session["user_id"]
-
-    group_id = request.args.get("group_id", type=int)
-    if group_id is None:
-        abort(400)
-
-    events = []
-
-    con = sqlite3.connect("bb.db")
-    db = con.cursor()
-    # people in group - SELECT user_id FROM groups WHERE group_id = 
-    db.execute(
-        "SELECT e.event_id, e.start, e.end, e.user_id, u.username FROM events as e JOIN users as u ON e.user_id = u.id WHERE e.group_id = ?", [group_id]
-    )
-
-    for (event_id, start, end, event_user_id, event_username) in db.fetchall():
-        if event_user_id != user_id:
-            event = {
-                "id": event_id,
-                "start": start,
-                "end": end,
-                "editable": False,
-                "color": "#FD8F52",
-            }
-            event["display"] = "background"
-            event["title"] = event_username
-            event["color"] = "#FD8F52"
-            events.append(event)
-    
-    return events
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
@@ -324,8 +382,10 @@ def login():
 
         # Ensure username exists and password is correct
         count = 0
-        for row in rows:
-            count = count + 1
+        if rows is not None:
+            for row in rows:
+                count = count + 1
+            
         
         
         #Ensure password is correct
@@ -336,7 +396,7 @@ def login():
         # Remember which user has logged in
         res = db.execute("SELECT id FROM users WHERE username = ?", [request.form.get("username")])
         rows = res.fetchone() 
-        session["user_id"] = rows[0]
+        session["user_id"], = rows
 
         # Redirect user to home page
         return redirect("/")
@@ -403,7 +463,7 @@ def register():
         id = id.fetchone()
         
         # Remember which user has logged in
-        session["user_id"] = id
+        session["user_id"], = id
 
         con.close()
 
